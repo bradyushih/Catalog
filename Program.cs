@@ -13,9 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 // to json
 BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
+
 builder.Services.AddSingleton<IMongoClient>(ServiceProvider => {
-    var settings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
-    return new MongoClient(settings.ConnectionString);
+    return new MongoClient(mongoDbSettings.ConnectionString);
 });
 
 builder.Services.AddSingleton<IItemsRepository, MongoDbItemsRepository>();
@@ -25,6 +26,9 @@ builder.Services.AddControllers(options => {
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHealthChecks()
+    .AddMongoDb(mongoDbSettings.ConnectionString, name: "mongodb", timeout: TimeSpan.FromSeconds(3));
 
 var app = builder.Build();
 
@@ -39,6 +43,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 
