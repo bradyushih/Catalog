@@ -44,12 +44,15 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();  
 }
 
-// app.Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
-app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapControllers();
+
 app.MapHealthChecks("/health/ready", new HealthCheckOptions{
     Predicate = (check) => check.Tags.Contains("ready"),
     ResponseWriter = async(context, report) => 
@@ -74,6 +77,5 @@ app.MapHealthChecks("/health/live", new HealthCheckOptions{
     Predicate = (_) => false
 });
 
-app.MapControllers();
 
 app.Run();
