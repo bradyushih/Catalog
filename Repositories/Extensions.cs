@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Catalog.Dtos;
-using Catalog.Entitiesusing;
+using Catalog.Entities;
 
 namespace Catalog.Repositories
 {
